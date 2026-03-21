@@ -11,4 +11,4 @@ if (!pinecone_api_key) {
 
 const pinecone = new PineconeClient({ apiKey: pinecone_api_key });
 
-export const pineconeIndex = pinecone.Index("chat-with-pdf");
+export const pineconeIndex = pinecone.Index("temp-app");

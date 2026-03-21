@@ -9,28 +9,38 @@ export async function queryQuestion(question: string) {
         maxConcurrency: 5,
     });
 
-    const retriver = vectorStore.asRetriever({
+    const retriever = vectorStore.asRetriever({
         k: 3,
     });
 
-    const docs = await retriver.invoke(question);
+    const docs = await retriever.invoke(question);
 
-    const context = docs.map(
-        (doc, i) =>
-            `Chunk: ${i + 1} (Page ${doc.metadata.page}) : ${doc.pageContent}`,
-    );
+    const context = docs
+        .map(
+            (doc, i) =>
+                `Chunk: ${i + 1} (Page ${doc.metadata.page}) : ${doc.pageContent}`,
+        )
+        .join("\n\n");
 
-    const response = await chatModel.invoke(`
-        You are a helpful assistant.
+    const response = await chatModel.invoke(`You are a helpful AI assistant.
 
-    Use ONLY the provided context to answer the question.
-    If the answer is not in the context, say "I don't know".
+Answer the question using ONLY the provided context.
 
-    ${context}
+Rules:
+- If answer is not in context → say "I don't know"
+- Be concise and clear
+- Always mention the page number(s)
+- Do NOT make up information
 
-    Question: ${question}
-    Answer clearly and mention the page number.
-        `);
+Context:
+${context}
+
+Question: ${question}
+
+Answer:
+`);
 
     console.log("final ans: ", response.content);
+
+    return response.content;
 }

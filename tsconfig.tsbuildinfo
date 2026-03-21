@@ -1,1 +1,1 @@
-{"root":["./src/index.ts"],"version":"5.9.3"}
+{"root":["./src/index.ts","./src/config/pinecone.ts","./src/controllers/chat.controller.ts","./src/controllers/pdf.controller.ts","./src/models/chat_embedding.ts","./src/routes/user.route.ts","./src/schemas/question.schema.ts","./src/services/pdf.service.ts","./src/services/rag.service.ts","./src/utils/multer.ts"],"version":"5.9.3"}
