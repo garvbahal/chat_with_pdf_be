@@ -70,24 +70,33 @@ export const login = async (req: Request, res: Response) => {
         if (!userExists) {
             return res.status(400).json({
                 success: false,
-                message: "User doesn't exists please signup",
+                message: "User doesn't exist, please sign up",
             });
         }
 
-        const jwtsecret: string = process.env.JWT_SECRET as string;
-        // if (!jwtsecret) {
-        //     throw new Error("JWT_SECRET is not defined");
-        // }
+        if (await bcrypt.compare(password, userExists.password)) {
+            const jwtsecret = process.env.JWT_SECRET || "12345";
 
-        const token = jwt.sign(
-            {
-                id: userExists._id,
-            },
-            jwtsecret as string,
-            {
-                expiresIn: "7d",
-            },
-        );
+            const token = jwt.sign(
+                {
+                    id: userExists._id,
+                },
+                jwtsecret,
+                {
+                    expiresIn: "7d",
+                },
+            );
+
+            return res.status(200).json({
+                success: true,
+                message: "User logged in successfully",
+                token,
+            });
+        }
+        return res.status(401).json({
+            success: false,
+            message: "Password doesn't match",
+        });
     } catch (error) {
         return res.status(500).json({
             success: false,

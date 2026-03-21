@@ -5,8 +5,13 @@ const app = express();
 app.use(express.json());
 
 import userRouter from "./routes/user.route.js";
+import authRouter from "./routes/auth.route.js";
+import { connectDB } from "./config/mongo.js";
 
-app.use("/api/v1/", userRouter);
+app.use("/api/v1", userRouter);
+app.use("/api/v1", authRouter);
+
+connectDB();
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
