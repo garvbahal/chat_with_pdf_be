@@ -12,7 +12,7 @@ const splitter = new RecursiveCharacterTextSplitter({
     chunkOverlap: 50,
 });
 
-export async function processPdf(filePath: string) {
+export async function processPdf(filePath: string, namespace: string) {
     const loader = new PDFLoader(filePath);
 
     const docs = await loader.load();
@@ -32,7 +32,7 @@ export async function processPdf(filePath: string) {
 
     const vectorStore = new PineconeStore(embeddingModel, {
         pineconeIndex,
-        namespace: "temp-checking",
+        namespace: namespace,
         maxConcurrency: 5,
     });
 

@@ -1,5 +1,18 @@
 import mongoose, { Schema } from "mongoose";
 
-const pdfSchema = new Schema({});
+const pdfSchema = new Schema(
+    {
+        userId: {
+            type: mongoose.Schema.Types.ObjectId,
+            required: true,
+            ref: "User",
+        },
+        fileName: {
+            type: String,
+            required: true,
+        },
+    },
+    { timestamps: true },
+);
 
-export const PDF = mongoose.model("PDF", pdfSchema);
+export const PDFModel = mongoose.model("PDF", pdfSchema);

@@ -2,10 +2,10 @@ import { PineconeStore } from "@langchain/pinecone";
 import { chatModel, embeddingModel } from "../models/chat_embedding.js";
 import { pineconeIndex } from "../config/pinecone.js";
 
-export async function queryQuestion(question: string) {
+export async function queryQuestion(question: string, namespace: string) {
     const vectorStore = new PineconeStore(embeddingModel, {
         pineconeIndex,
-        namespace: "temp-checking",
+        namespace: namespace,
         maxConcurrency: 5,
     });
 
