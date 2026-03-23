@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import { processPdf } from "../services/pdf.service.js";
 import fs from "fs";
 import { PDFModel } from "../models/pdf.model.js";
+import { ChatModel } from "../models/chat.model.js";
 
 export const uploadPdf = async (req: Request, res: Response) => {
     const filePath = req.file?.path;
@@ -10,6 +11,13 @@ export const uploadPdf = async (req: Request, res: Response) => {
         return res.status(400).json({
             success: false,
             message: "No file uploaded",
+        });
+    }
+
+    if (req.file?.mimetype !== "application/pdf") {
+        return res.status(400).json({
+            success: false,
+            message: "Only pdf files are allowed",
         });
     }
 
@@ -27,7 +35,12 @@ export const uploadPdf = async (req: Request, res: Response) => {
 
         await processPdf(filePath, namespace);
 
-        await fs.promises.unlink(filePath);
+        await ChatModel.create({
+            userId,
+            pdfId: fileId,
+        });
+
+        await fs.promises.unlink(filePath).catch(() => {});
 
         return res.status(200).json({
             success: true,

@@ -24,9 +24,22 @@ const chatSchema = new Schema(
             ref: "PDF",
             required: true,
         },
+        title: {
+            type: String,
+            default: "New Chat",
+        },
+        lastMessage: {
+            type: String,
+        },
         messages: [messageSchema],
+        isTitleGenerated: {
+            type: Boolean,
+            default: false,
+        },
     },
     { timestamps: true },
 );
+
+chatSchema.index({ userId: 1, pdfId: 1 }, { unique: true });
 
 export const ChatModel = mongoose.model("Chat", chatSchema);

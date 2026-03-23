@@ -41,7 +41,7 @@ export const getWelcomeEmailTemplate = (email: string) => `
   </div>
 
   <p style="text-align:center; font-size:12px; color:#aaa; margin-top:20px;">
-    © ${new Date().getFullYear()} Your App. All rights reserved.
+    © ${new Date().getFullYear()} Chat-with-pdf. All rights reserved.
   </p>
 </div>
 `;
