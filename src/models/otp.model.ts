@@ -11,10 +11,13 @@ const otpSchema = new Schema(
             required: true,
         },
         data: {
-            passwordHashed: {
-                type: String,
-                required: true,
+            type: {
+                passwordHashed: {
+                    type: String,
+                    required: true,
+                },
             },
+            required: true,
         },
         expiresAt: {
             type: Date,

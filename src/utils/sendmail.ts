@@ -14,7 +14,7 @@ export async function sendMail(sendTo: string, subject: string, text: string) {
         from: process.env.USER_GMAIL,
         to: sendTo,
         subject: subject,
-        text: text,
+        html: text,
     };
     try {
         await transporter.sendMail(mailOptions);

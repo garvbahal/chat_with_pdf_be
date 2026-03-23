@@ -11,6 +11,8 @@ import dotenv from "dotenv";
 import otpGenerator from "otp-generator";
 import { OTPModel } from "../models/otp.model.js";
 import { sendMail } from "../utils/sendmail.js";
+import { getMailHTMLTemplate } from "../utils/emailTemplate.js";
+import { getWelcomeEmailTemplate } from "../utils/welcomeEmailTemplate.js";
 dotenv.config();
 
 export const signup = async (req: Request, res: Response) => {
@@ -49,14 +51,24 @@ export const signup = async (req: Request, res: Response) => {
             {
                 $set: {
                     otpHash: otpHash,
-                    "data.password": hashedPassword,
+                    "data.passwordHashed": hashedPassword,
                     expiresAt: new Date(Date.now() + 5 * 60 * 1000),
                 },
             },
             { upsert: true, new: true },
         );
 
-        await sendMail(email, "OTP for signup", otp);
+        const mailHTML = getMailHTMLTemplate(otp);
+        try {
+            await sendMail(email, "OTP for signup", mailHTML);
+        } catch (error) {
+            await OTPModel.deleteOne({ email });
+            console.log("Error while sending mail", error);
+            return res.status(500).json({
+                success: false,
+                message: "Failed to send OTP",
+            });
+        }
 
         return res.status(200).json({
             success: true,
@@ -138,6 +150,64 @@ export const verifyOtp = async (req: Request, res: Response) => {
         }
         const { email, otp } = data;
 
-        
-    } catch (error) {}
+        const existingUser = await User.findOne({ email });
+
+        if (existingUser) {
+            return res.status(400).json({
+                success: false,
+                message: "User already exists",
+            });
+        }
+
+        const otpResponse = await OTPModel.findOne({ email: email });
+
+        if (!otpResponse) {
+            return res.status(404).json({
+                success: false,
+                message: "OTP does not exist for given email",
+            });
+        }
+
+        if (otpResponse.expiresAt < new Date()) {
+            await OTPModel.deleteOne({ email });
+            return res.status(400).json({
+                success: false,
+                message: "OTP expired",
+            });
+        }
+        const verify = await bcrypt.compare(otp, otpResponse.otpHash);
+
+        if (!verify) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid OTP",
+            });
+        }
+
+        const userResponse = await User.create({
+            email: email,
+            password: otpResponse.data.passwordHashed,
+        });
+
+        await OTPModel.deleteOne({ email: email });
+
+        const welcomeMailHTML = getWelcomeEmailTemplate(email);
+
+        try {
+            await sendMail(email, "Signup Successful 🎉", welcomeMailHTML);
+        } catch (error) {
+            console.log("Failed to send welcome mail!!", error);
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "User signed up successfully",
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: "Something went wrong while verifying the otp",
+            error: error,
+        });
+    }
 };
