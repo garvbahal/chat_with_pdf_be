@@ -35,7 +35,7 @@ export const uploadPdf = async (req: Request, res: Response) => {
 
     await processPdf(filePath, namespace);
 
-    await ChatModel.create({
+    const newChat = await ChatModel.create({
       userId,
       pdfId: fileId,
       messages: [
@@ -52,6 +52,7 @@ export const uploadPdf = async (req: Request, res: Response) => {
       success: true,
       message: "PDF processed successfully",
       fileId,
+      chatId: newChat._id,
     });
   } catch (error) {
     if (filePath) {
