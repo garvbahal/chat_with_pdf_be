@@ -1,24 +1,23 @@
-import nodemailer from "nodemailer";
+import dotenv from "dotenv";
+import { Resend } from "resend";
+dotenv.config();
 
-export async function sendMail(sendTo: string, subject: string, text: string) {
-  const transporter = nodemailer.createTransport({
-    service: "gmail",
-    port: 587,
-    secure: false,
-    auth: {
-      user: process.env.USER_GMAIL,
-      pass: process.env.USER_PASS,
-    },
-  });
+const resend_api = process.env.RESEND_APIKEY;
+if (!resend_api) {
+  throw new Error("resend api missing");
+}
+
+export async function sendMail(sendTo: string, subject: string, html: string) {
+  const resend = new Resend(resend_api);
 
   const mailOptions = {
-    from: process.env.USER_GMAIL,
+    from: "onboarding@resend.dev",
     to: sendTo,
     subject: subject,
-    html: text,
+    html: html,
   };
   try {
-    await transporter.sendMail(mailOptions);
+    await resend.emails.send(mailOptions);
   } catch (error) {
     console.log("Error sending mail: ", error);
   }
