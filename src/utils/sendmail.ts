@@ -11,7 +11,7 @@ export async function sendMail(sendTo: string, subject: string, html: string) {
   const resend = new Resend(resend_api);
 
   const mailOptions = {
-    from: "onboarding@resend.dev",
+    from: "AskDocs <noreply@askdocs.dev>",
     to: sendTo,
     subject: subject,
     html: html,
